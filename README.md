@@ -2,14 +2,14 @@
 TE-16, pg 24
 - https://github.com/SteveJustin1963/tec-BOOKS/blob/master/TE/Mag/tec_times_1990_03.pdf
 
-### RECEIVER
+### SERIAL INPUT ROUTINE - RECEIVER
 This is the routine I use when I wish to down-load a file from the IBM. It's a simple routine that converts a serial stream into bytes and stores them in RAM starting at the address provided at 0898. The routine also has an end address to allow a maximum file length. This is in case something goes wrong with the data transfer. Anything important can be protected by placing it above the end address.
 
 No hand-shaking is needed as the TEC can cope with the speed of the data stream. It is up to you to ensure the TEC is ready before you send the data. The serial input is bit 0 of PORT 3. The DAT BOARD has provision for 2 diodes and a resistor at this input to clip an incoming RS232 signal. In the RS232 format, a logic 1 is represented by a negative voltage while a logic 0 is a positive voltage. The clipper on the DAT BOARD changes an RS232 logic 0 (positive voltage) into a digital logic 1 while an RS232 logic l is clipped to zero volts and becomes a digital logic 0.
 
 This means that the inputted data must be inverted back into its true form. This is done with the CPL instruction at 092C. The format of the data is as follows: 2400 BAUD, NO PARITY, 8 BITS, STOP BITS OPTIONAL, TEC SPEED: 3.58/2
 
-### SERIAL OUTPUT ROUTINE
+### SERIAL OUTPUT ROUTINE - SENDER
 This is the complement routine of the serial receiver. It will send serial data through the TEC speaker bit. The data is taken from the latch side of the base resistor of the transistor inverter and inputted directly to an RS232 Rx input or the DAT BOARD serial input. Strictly speaking the data stream is not RS232 compatible but in practice it works ok, although the occasional error may creep in.
 
 Oh yes, before sending data, the key press beep must be turned off. To do this, place FF at 0822 and put AA at 08FF. The serial sender uses the same start and end buffers as the receive described above with the same speed etc. Two stop bits are sent as this provides compatibility with all serial systems. 
