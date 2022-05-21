@@ -9,6 +9,10 @@ No hand-shaking is needed as the TEC can cope with the speed of the data stream.
 
 This means that the inputted data must be inverted back into its true form. This is done with the CPL instruction at 092C. The format of the data is as follows: 2400 BAUD, NO PARITY, 8 BITS, STOP BITS OPTIONAL, TEC SPEED: 3.58/2
 
+ser_in.z80; This program reads data from a serial port and stores it in memory. The program starts by reading a byte from the serial port. It then rotates the byte left by one bit and stores it in memory. If the byte is not equal to zero, the program reads another byte from the serial port and repeats the process. When the byte is equal to zero, the program stops reading from the serial port and increments the value in the memory location pointed to by HL.
+
+ser_out.z80;
+
 ### SERIAL OUTPUT ROUTINE - SENDER
 This is the complement routine of the serial receiver. It will send serial data through the TEC speaker bit. The data is taken from the latch side of the base resistor of the transistor inverter and inputted directly to an RS232 Rx input or the DAT BOARD serial input. Strictly speaking the data stream is not RS232 compatible but in practice it works ok, although the occasional error may creep in.
 
