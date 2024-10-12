@@ -1,0 +1,60 @@
+// Constants for terminal I/O and memory operations
+:R /K           // Read a character from terminal (RXCHAR equivalent)
+:P /C           // Print a character to terminal
+:ADDR 0 0 ;     // Store the 16-bit memory address (high and low bytes)
+:LENGTH 0 ;     // Length of data bytes per line
+:RECORD_TYPE 0 ;// Record type (00 = data, 01 = end of file)
+:CHECKSUM 0 ;   // Checksum accumulator for integrity check
+:DATA 0 ;       // Temporary storage for a data byte
+:E 0 ;          // Error flag to indicate failures
+
+// Convert two ASCII characters to one byte
+:A2B
+  R h!                      // Read the high nibble from terminal
+  R l!                      // Read the low nibble
+  h `0` - " 9 > ( 7 - ) h ! // Convert high nibble (A-F or 0-9)
+  l `0` - " 9 > ( 7 - ) l ! // Convert low nibble (A-F or 0-9)
+  h 4 { l + DATA !          // Combine high and low nibbles into a byte
+  DATA CHECKSUM + CHECKSUM ! // Add byte to checksum
+;
+
+// Store data bytes in memory
+:STORE_DATA
+  LENGTH / (                // Loop for the number of bytes in the line
+    A2B                     // Convert two ASCII characters to a byte
+    DATA ADDR / !           // Store the byte in memory at ADDR
+    ADDR / 1+ ADDR !        // Increment address for next byte
+  )
+;
+
+// Load one line of the Intel HEX file
+:LOAD_LINE
+  /U ( R `:` = /W )         // Wait for the colon character (start of line)
+  0 CHECKSUM !              // Reset checksum for new line
+  A2B LENGTH !              // Read the length of data bytes in this line
+  A2B ADDR 1+ !             // Read high byte of the address
+  A2B ADDR !                // Read low byte of the address
+  A2B RECORD_TYPE !         // Read the record type
+  RECORD_TYPE / 1 = ( /T ) /E ( STORE_DATA )  // Store data if not end-of-file
+  A2B                       // Read the checksum byte
+  CHECKSUM / #FF & 0 = ( 0 ) /E ( 1 ) E !  // Set error flag if checksum mismatch
+;
+
+// Jump to and execute uploaded machine code
+:EXECUTE_CODE
+  ADDR / /X                 // Jump to the start address and execute code
+;
+
+// Main Loop: Load and optionally execute the code
+:T
+  /U (                      // Infinite loop
+    LOAD_LINE               // Load one line of the Intel HEX file
+    E / 1 = ( `Error!` P /U ) /E ( `Line loaded.` P )
+    RECORD_TYPE / 1 = /W    // Exit loop if end-of-file reached
+  )
+  `Execute code? (Y/N)` P   // Prompt user to execute uploaded code
+  R `Y` = ( EXECUTE_CODE )  // If 'Y', execute the code
+;
+
+// Run the Intel HEX loader
+T
