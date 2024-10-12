@@ -1,5 +1,5 @@
 # tec-SERIAL-LOAD
-TE-16, pg 24
+Mag/tec_times_1990_03  aka TE-16, pg 24
 - https://github.com/SteveJustin1963/tec-BOOKS/blob/master/TE/Mag/tec_times_1990_03.pdf
 
 ### SERIAL INPUT ROUTINE - RECEIVER
